@@ -256,7 +256,7 @@ class LoadWebcam:  # for inference
 
 
 class LoadStreams:  # multiple IP or RTSP cameras
-    def __init__(self, sources='streams.txt', img_size=640, open_sources=False):
+    def __init__(self, sources='streams.txt', img_size=640, open_sources=True):
         self.mode = 'stream'
         self.img_size = img_size
 
@@ -282,14 +282,16 @@ class LoadStreams:  # multiple IP or RTSP cameras
                 thread = Thread(target=self.update, args=([i, cap]), daemon=True)
                 print(f' success ({w}x{h} at {fps:.2f} FPS).')
                 thread.start()
-        print('')  # newline
+            print('')  # newline
 
-        # check for common shapes
-        #s = np.stack([letterbox(x, new_shape=self.img_size)[0].shape for x in self.imgs], 0)  # inference shapes
-        #self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
-        self.rect = True #hack
-        if not self.rect:
-            print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
+            # check for common shapes
+            s = np.stack([letterbox(x, new_shape=self.img_size)[0].shape for x in self.imgs], 0)  # inference shapes
+            self.rect = np.unique(s, axis=0).shape[0] == 1  # rect inference if all shapes equal
+            if not self.rect:
+                print('WARNING: Different stream shapes detected. For optimal performance supply similarly-shaped streams.')
+        else:
+            self.rect = True #hack
+
 
     def set_image(self, frame: np.ndarray):
         for i in range(len(self.imgs)):
@@ -312,7 +314,6 @@ class LoadStreams:  # multiple IP or RTSP cameras
         return self
 
     def __next__(self):
-        self.count = getattr(self, 'count', -1)
         self.count += 1
         img0 = self.imgs.copy()
         if cv2.waitKey(1) == ord('q'):  # q to quit

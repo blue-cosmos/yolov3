@@ -199,11 +199,11 @@ class VideoWorker(QThread):
         frame_num = 0
         frame_processing = False
         while self.video_src.isOpened():
-            with QMutexLocker(self.mutex):
-                if self.stopped:
-                    self.video_src.release()
-                    parent_conn.send('end')
-                    break
+            #with QMutexLocker(self.mutex):
+            if self.stopped:
+                self.video_src.release()
+                parent_conn.send('end')
+                break
             
             succeeded, frame = self.video_src.read()
             if not succeeded: break
@@ -236,20 +236,20 @@ class VideoWorker(QThread):
         detecting_process.join()
 
     def stop(self):
-        with QMutexLocker(self.mutex):
-            self.stopped = True
+        #with QMutexLocker(self.mutex):
+        self.stopped = True
 
     def is_stopped(self):
-        with QMutexLocker(self.mutex):
-            return self.stopped
+        #with QMutexLocker(self.mutex):
+        return self.stopped
 
     def start_detecting(self):
-        with QMutexLocker(self.mutex):
-            self.detecting = True
+        #with QMutexLocker(self.mutex):
+        self.detecting = True
 
     def stop_detecting(self):
-        with QMutexLocker(self.mutex):
-            self.detecting = False
+        #with QMutexLocker(self.mutex):
+        self.detecting = False
 
     def set_fps(self, fps):
         self.frequent = fps

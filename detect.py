@@ -45,7 +45,8 @@ def detect(options: argparse.Namespace, save_img=False):
     # Set Dataloader
     vid_path, vid_writer = None, None
     if webcam:
-        view_img = True
+        #view_img = True
+        view_img = False
         cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz, open_sources=False)
     else:
@@ -61,11 +62,12 @@ def detect(options: argparse.Namespace, save_img=False):
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
     detections = []
+    dataset_it = iter(dataset)
 
     while True:
         frame = yield detections
         dataset.set_image(frame)
-        path, img, im0s, vid_cap = next(dataset)
+        path, img, im0s, vid_cap = next(dataset_it)
 
         #for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
