@@ -161,6 +161,7 @@ class VideoTracker(object):
             _, ori_im = self.vdo.retrieve()
             s = time.time()
             rets = self.fa.get(ori_im,self.thresh,im_scale)
+            print(f'fa.get: {time.time() - s}')
              
             #for c in range(self.count):
             #    faces, landmarks = self.detector.detect(ori_im,self.thresh,scales=scales,do_flip=flip)
@@ -178,7 +179,9 @@ class VideoTracker(object):
                 embeddings.append(ret[3])
                 embedding_norms.append(ret[6])
             #print(' normed_embeddings =',type( normed_embeddings),len( normed_embeddings))
+            match_begin_time = time.time()
             face_names,face_probs = self.match_face( normed_embeddings,embeddings,embedding_norms)
+            print(f'match_face: {time.time() - match_begin_time}')
             for i,ret in enumerate(rets):
                 bbox, landmark, det_score, embedding, gender, age,embedding_norm, normed_embedding = ret
                 box = bbox.astype(np.int)
